@@ -1,0 +1,23 @@
+pip install beautifulsoup4 pandas
+from urllib.request import urlopen, Request
+from bs4 import BeautifulSoup
+import pandas as pd
+import re
+url = 'https://www.amazon.it/gp/bestsellers/electronics/473246031/ref=zg_bs_nav_ce_3_1497228031'
+request = Request(url, headers={'User-agent': 'Mozilla/5.0'})
+html = urlopen(request)
+soup = BeautifulSoup(html, 'html.parser')
+phones = soup.find_all('div', id="gridItemRoot")
+rank = []
+title = []
+price = []
+for phone in phones:
+    rank.append(phone.find('span', class_="zg-bdg-text").get_text().replace('#', ''))
+    #print(rank)
+    title.append(phone.find('div', class_=re.compile("_cDEzb_p13n-sc-css-line-clamp-")).get_text(strip=True))
+    #print(f"Title: {title}")
+    price.append(phone.find('span', class_="a-size-base a-color-price").get_text().strip())
+    #print(price)
+d = {'Rank': rank, 'Title': title, 'price': price}
+df = pd.DataFrame(data=d)
+df.to_excel (r'C:\Users\baijinpeng\Desktop\意大利线上竞争.xlsx', index = False, header=True)
